@@ -29,7 +29,7 @@ import sys
 import json
 from pprint import pprint as pp
 import datetime
-
+import calendar
 
 CONFIG = {}
 
@@ -99,13 +99,19 @@ def display_config():
     print(json.dumps(CONFIG, indent=4))
 
 
-def print_week(day):
+def display_week(day, color_day=None):
+    # By default, colorize 'today' in the week. But if 'color_day' is
+    # given, only colorize days that match 'color_day'. If no days
+    # match, nothing is colored.
+    if not color_day:
+        color_day = day
+
     if day.weekday() == 6:
         dow = 0
     else:
         # The +1 accounts for days starting on monday
         dow = day.isoweekday()
-    disp('Weekday: %s' % colorize('green', dow))
+    #disp('Weekday: %s' % colorize('green', dow))
     one_day = datetime.timedelta(days=1)
 
     # Weeks start on sunday
@@ -115,22 +121,50 @@ def print_week(day):
 
     for i in xrange(7):
         day_to_show = sunday + (one_day * i)
-        if day_to_show == day:
-            week_days.append(colorize('PURPLE', day.day))
+        if day_to_show.day == color_day.day:
+            week_days.append(colorize('PURPLE', str(day_to_show.day).zfill(2)))
         else:
-            week_days.append(day_to_show.day)
+            if day_to_show.month != color_day.month:
+                week_days.append(colorize('lightgray', str(day_to_show.day).zfill(2)))
+            else:
+                week_days.append(colorize('white', str(day_to_show.day).zfill(2)))
 
     print " %s  %s  %s  %s  %s  %s  %s " % tuple(map(lambda x: str(x).zfill(2), week_days))
 
+
+def display_month(start_day):
+    # Get the first day of the month by finding what the current day
+    # is. Get this from day.day.
+    day = datetime.timedelta(days=1)
+    #first_day = start_day - (day * (start_day.day - 1))
+    first_day = datetime.datetime(start_day.year, start_day.month, 1)
+    days_in_month = calendar.monthrange(start_day.year, start_day.month)[1]
+    # Then make a new day that is today - day * todays number
+    #display_week(first_day, color_day=start_day)
+    i = 0
+    #disp("Start day: %s" % colorize('green', str(start_day)))
+    #disp("First day: %s" % colorize('green', str(first_day)))
+    while i < days_in_month:
+        day_diff = (day * i)
+        #print day_diff
+        display_week(first_day + day_diff, color_day=start_day)
+        i += 7
+
+def display_year(day):
+    pass
 
 def display_calendar():
     # First, display today
     today = datetime.datetime.now()
     disp('Today: %s' % colorize('yellow', today.day))
     # Then display this week
-    print_week(today)
+    display_week(today)
     # Then display this month
+    disp("Month")
+    display_month(today)
     # Then display this year
+    disp("Year")
+    display_year(today)
 
 def main():
     result = repl()
