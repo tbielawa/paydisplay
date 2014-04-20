@@ -34,8 +34,8 @@ import calendar
 CONFIG = {}
 
 def get_config():
-    c = json.load(open('paydisplay.json'))
-    print CONFIG
+    c = json.loads(open('paydisplay.json', 'r').read())
+    global CONFIG
     CONFIG = c
     return c
 
@@ -69,23 +69,24 @@ def colorize(color, item):
 
 def help():
     print """
-d - display calendar
-c - display config
-h - help
-q - quit"""
+d|display - display calendar
+c|config - display config
+h|help - help
+q|quit - quit"""
 
 def repl():
+    print colorize('yellow', "Enter 'h' or 'help' to see commands available")
     while True:
-        display_calendar()
-        sys.exit(0)
+        #display_calendar()
+        #sys.exit(0)
         cmd = raw_input('command: ')
-        if cmd == 'd':
+        if cmd == 'd' or cmd == 'disp':
             disp('Calendar')
             display_calendar()
-        elif cmd == 'c':
+        elif cmd == 'c' or cmd == 'config':
             disp('Config')
             display_config()
-        elif cmd == 'q':
+        elif cmd == 'q' or cmd == 'quit':
             disp('QUIT')
             break
         else:
@@ -167,14 +168,17 @@ def display_calendar():
     display_year(today)
 
 def main():
+    get_config()
     result = repl()
 
 
 
 if __name__ == '__main__':
-    #try:
-    main()
-    # except Exception, e:
+    try:
+        main()
+    except KeyboardInterrupt, e:
+        pass
+
     #     print e
     #     import pdb
     #     pdb.set_trace()
