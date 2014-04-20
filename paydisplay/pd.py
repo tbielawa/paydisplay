@@ -34,7 +34,13 @@ import calendar
 CONFIG = {}
 
 def get_config():
-    c = json.loads(open('paydisplay.json', 'r').read())
+    config_locations = [".paydisplay.json", "paydisplay.json", os.path.expanduser("~/.paydisplay.json")]
+
+    for location in config_locations:
+        if os.path.exists(location):
+            c = json.loads(open('paydisplay.json', 'r').read())
+            break
+
     global CONFIG
     CONFIG = c
     return c

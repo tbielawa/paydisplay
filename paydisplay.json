@@ -1,16 +1,74 @@
 {
     "config": {
 	"heat_colors": {
-	    "blue": [0, 100],
-	    "red": [101, 1000]
+	    "lred": [0, 150],
+	    "lyellow": [151, 1000],
+	    "lgreen": [1001, 10000]
 	}
     },
     "payments": [
 	{
 	    "description": "Rent",
 	    "amount": 725,
-	    "frequency": [18,19,1],
-	    "auxiliary_rules": []
+	    "frequency": {
+		"day": 25
+	    }
+	},
+	{
+	    "description": "GitHub",
+	    "amount": 7,
+	    "frequency": {
+		"day": 21
+	    }
+	},
+	{
+	    "description": "Linode",
+	    "amount": 40,
+	    "frequency": {
+		"day": 1
+	    }
+	},
+	{
+	    "description": "Hulu+",
+	    "amount": 7.99,
+	    "frequency": {
+		"day": 19
+	    }
+	},
+	{
+	    "description": "Netflix",
+	    "amount": 8.53,
+	    "frequency": {
+		"day": 22
+	    }
+	},
+	{
+	    "description": "Time Warner",
+	    "amount": 150.00,
+	    "frequency": {
+		"day": 30
+	    }
+	},
+	{
+	    "description": "Sprint",
+	    "amount": 75.00,
+	    "frequency": {
+		"day": 30
+	    }
+	},
+	{
+	    "description": "Car Insurance",
+	    "amount": 99.99,
+	    "frequency": {
+		"day": 18
+	    }
+	},
+	{
+	    "description": "Student Loans",
+	    "amount": 30000.00,
+	    "frequency": {
+		"day": 18
+	    }
 	}
     ]
 }
