@@ -1,0 +1,16 @@
+{
+    "config": {
+	"heat_colors": {
+	    "blue": [0, 100],
+	    "red": [101, 1000]
+	}
+    },
+    "payments": [
+	{
+	    "description": "Rent",
+	    "amount": 725,
+	    "frequency": [18,19,1],
+	    "auxiliary_rules": []
+	}
+    ]
+}

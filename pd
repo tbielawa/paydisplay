@@ -1,0 +1,146 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# The MIT License (MIT)
+#
+# Copyright © 2014 Tim Bielawa <timbielawa@gmail.com>
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation files
+# (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge,
+# publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+import os
+import sys
+import json
+from pprint import pprint as pp
+import datetime
+
+
+CONFIG = {}
+
+def get_config():
+    c = json.load(open('paydisplay.json'))
+    print CONFIG
+    CONFIG = c
+    return c
+
+def disp(item):
+    _prefix = colorize('white', 'Displaying: ')
+    _item = colorize('red', item)
+    print "%s%s" % (_prefix, _item)
+
+def colorize(color, item):
+    COLORS = {}
+    COLORS['RESTORE'] = '\033[0m'
+    COLORS['RED'] = '\033[00;31m'
+    COLORS['GREEN'] = '\033[00;32m'
+    COLORS['YELLOW'] = '\033[00;33m'
+    COLORS['BLUE'] = '\033[00;34m'
+    COLORS['PURPLE'] = '\033[00;35m'
+    COLORS['CYAN'] = '\033[00;36m'
+    COLORS['LIGHTGRAY'] = '\033[00;37m'
+    COLORS['LRED'] = '\033[01;31m'
+    COLORS['LGREEN'] = '\033[01;32m'
+    COLORS['LYELLOW'] = '\033[01;33m'
+    COLORS['LBLUE'] = '\033[01;34m'
+    COLORS['LPURPLE'] = '\033[01;35m'
+    COLORS['LCYAN'] = '\033[01;36m'
+    COLORS['WHITE'] = '\033[01;37m'
+    # restore, set color, item text, restore
+    return "%s%s%s%s" % (COLORS['RESTORE'],
+                         COLORS[color.upper()],
+                         item,
+                         COLORS['RESTORE'])
+
+def help():
+    print """
+d - display calendar
+c - display config
+h - help
+q - quit"""
+
+def repl():
+    while True:
+        display_calendar()
+        sys.exit(0)
+        cmd = raw_input('command: ')
+        if cmd == 'd':
+            disp('Calendar')
+            display_calendar()
+        elif cmd == 'c':
+            disp('Config')
+            display_config()
+        elif cmd == 'q':
+            disp('QUIT')
+            break
+        else:
+            disp('HELP')
+            help()
+
+
+    sys.exit(0)
+
+def display_config():
+    print(json.dumps(CONFIG, indent=4))
+
+
+def print_week(day):
+    if day.weekday() == 6:
+        dow = 0
+    else:
+        # The +1 accounts for days starting on monday
+        dow = day.weekday() + 1
+    disp('Weekday: %s' % colorize('green', dow))
+    one_day = datetime.timedelta(days=1)
+
+    # Weeks start on sunday
+    sunday = day - (one_day * dow)
+    # Collect the items to print for this week
+    week_days = []
+
+    for i in xrange(7):
+        day_to_show = sunday + (one_day * i)
+        if day_to_show == day:
+            week_days.append(colorize('PURPLE', day.day))
+        else:
+            week_days.append(day_to_show.day)
+
+    print " %s  %s  %s  %s  %s  %s  %s " % tuple(map(lambda x: str(x).zfill(2), week_days))
+
+
+def display_calendar():
+    # First, display today
+    today = datetime.datetime.now()
+    disp('Today: %s' % colorize('yellow', today.day))
+    # Then display this week
+    print_week(today - datetime.timedelta(days=2))
+    # Then display this month
+    # Then display this year
+
+def main():
+    result = repl()
+
+
+
+if __name__ == '__main__':
+    #try:
+    main()
+    # except Exception, e:
+    #     print e
+    #     import pdb
+    #     pdb.set_trace()
