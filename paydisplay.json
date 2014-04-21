@@ -65,7 +65,7 @@
 	},
 	{
 	    "description": "Student Loans",
-	    "amount": 30000.00,
+	    "amount": 300.00,
 	    "frequency": {
 		"day": 18
 	    }
