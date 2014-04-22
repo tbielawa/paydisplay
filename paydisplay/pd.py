@@ -151,7 +151,6 @@ def colorize_day(day, days_payment=None):
     color_index = int(math.floor(day_percent/(100/6.0)))
     #print day_percent, color_index
     if color_index == 6:
-        print day
         return HEAT_COLOR_ORDER[5]
     return HEAT_COLOR_ORDER[color_index]
 
