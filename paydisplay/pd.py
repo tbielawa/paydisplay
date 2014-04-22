@@ -24,6 +24,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import math
 import os
 import sys
 import json
@@ -86,8 +87,12 @@ Frequency (MM-DD): %s-%s
        pay_day)
 
 def sum_daily_payments(to_pay, day_of_month):
-    """'to_pay' is as in 'sum_monthly_payments', 'day_of_month' is an
-integer of the day of the month a summary is requested for"""
+    """Sum all the payments on a given day
+
+'to_pay' is as in 'sum_monthly_payments'. Get from get_pay_schedule
+
+'day_of_month' is an integer of the day of the month a summary is
+requested for"""
     payments = to_pay.get(day_of_month, [{'amount': 0}])
     _payments = map(lambda x: x['amount'], payments)
     return sum(_payments)
@@ -116,6 +121,63 @@ def print_schedule(to_pay):
     disp('Scheduled Payments', color='green')
     for payment in sorted(to_pay, key=lambda x: x['frequency']['day']):
         print_payment(payment)
+
+def highest_day():
+    to_pay = CONFIG['payments']
+    today = datetime.datetime.now()
+    daily_sums = average_daily_payments(to_pay, today)
+    return daily_sums[-1]
+
+def colorize_day(day, days_payment=None):
+    """'day' is an integer, 'to_pay' is the pay schedule"""
+    HEAT_COLOR_ORDER = ['RED', 'YELLOW', 'GREEN', 'BLUE', 'CYAN', 'PURPLE']
+    to_pay = CONFIG['payments']
+    today = datetime.datetime.now()
+    if days_payment:
+        todays_payment = days_payment
+    else:
+        todays_payment = sum_daily_payments(get_pay_schedule(to_pay), day)
+    if todays_payment == 0:
+        return 'BLACK'
+    daily_sums = average_daily_payments(to_pay, today)
+    highest_day = daily_sums[-1]
+    day_percent = percent_of_highest_day(todays_payment, highest_day)
+    # We have 6, but in a list the highest is 5 so worry about
+    # 0-5. colors. Each represents an even range of numbers between 1
+    # and 100. 100/6 is 16.6, so each color represents almost 17% of
+    # the range. Take the day_percent and divide it by this range
+    # (100/5) (remember, minus 1). This yields the index of the color
+    # representing the range of precents of this daily percent.
+    color_index = int(math.floor(day_percent/(100/6.0)))
+    #print day_percent, color_index
+    if color_index == 6:
+        print day
+        return HEAT_COLOR_ORDER[5]
+    return HEAT_COLOR_ORDER[color_index]
+
+
+def percent_of_highest_day(day, highest_day):
+    """'day' is the amount paid on a given day, 'highest_day' is the
+amount paid on the highest known day"""
+    #print "finding percent: %s/%s" % (day, highest_day)
+    return round(100 * (day/float(highest_day)), 2)
+
+
+def average_daily_payments(to_pay, day_of_month):
+    """`to_pay` is a list of payments, day of month is any given day for
+the month you want to calculate the average (non-zero) daily payment
+of"""
+    month = day_of_month.month
+    year = day_of_month.year
+    daily_payments = []
+    m = calendar.Calendar(6)
+    schedule = get_pay_schedule(to_pay)
+    for day in [d for d in m.itermonthdays(year, month) if d != 0]:
+        payment = sum_daily_payments(schedule, day)
+        if payment != 0:
+            daily_payments.append(payment)
+
+    return sorted(daily_payments)
 
 
 def get_config():
@@ -172,25 +234,6 @@ is the sum for the month"""
             #print "%s <= %s" % (inc[5], day_pct)
             return HEAT_COLOR_ORDER[5]
 
-        #while i < len(heat_borders):
-        # each item is the number from 1->100% that indicates a
-        # color change. '1' implicitly changes from 0=black to
-        # 1=RED
-        #print "loop: %s" % i
-        # if i == len(heat_borders) - 1:
-        #     #print "heat order: %s" % heat_order[i-1]
-        #     return heat_order[i-1]
-        # else:
-        #     if heat_borders[i] <= day_pct < heat_borders[i+1]:
-        #         #print "heat order: %s" % heat_order[i]
-        #         return heat_order[i]
-        #     else:
-        #         #print "%s <= %s < %s" % (heat_borders[i], day_pct,  heat_borders[i+1])
-        #         pass
-
-        # i += 1
-
-
 def disp(item, color='red', underline=False):
     _prefix = colorize('white', 'Displaying: ')
     _item = colorize(color, item, underline=underline)
@@ -215,18 +258,27 @@ def help():
     print """
 d|display - display calendar
 c|config - display config
+p|print - print payment averages
 h|help - help
 q|quit - quit"""
 
 def repl():
     print colorize('yellow', "Enter 'h' or 'help' to see commands available")
     while True:
-        display_calendar()
-        sys.exit(0)
+        #display_calendar()
+        #for i in range(1,int(highest_day())):
+        #    print colorize_day(0, days_payment=i)
+        #print highest_day()
+        #sys.exit(0)
         cmd = raw_input('command: ')
         if cmd == 'd' or cmd == 'disp':
             disp('Calendar')
             display_calendar()
+        elif cmd == 'r' or cmd == 'range':
+            for i in range(1,int(highest_day()), 25):
+                print colorize_day(0, days_payment=i)
+        elif cmd == 'p' or cmd == 'print':
+            print_schedule(CONFIG['payments'])
         elif cmd == 'c' or cmd == 'config':
             disp('Config')
             display_config()
@@ -276,7 +328,8 @@ def display_week(day, color_day=None):
     for i in xrange(7):
         day_to_show = sunday + (one_day * i)
         daily_payment = sum_daily_payments(payments, day_to_show.day)
-        _bg = heat_background(daily_payment, month_total)
+        _bg = colorize_day(day_to_show.day)
+        #(daily_payment, month_total)
         if day_to_show.day == color_day.day:
             week_days.append(colorize('white',
                                       str(day_to_show.day).zfill(2),
