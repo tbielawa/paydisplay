@@ -44,31 +44,53 @@
 	},
 	{
 	    "description": "Time Warner",
-	    "amount": 150.00,
+	    "amount": 166.44,
 	    "frequency": {
 		"day": 30
 	    }
 	},
 	{
 	    "description": "Sprint",
-	    "amount": 75.00,
+	    "amount": 81.53,
 	    "frequency": {
 		"day": 30
 	    }
 	},
 	{
 	    "description": "Car Insurance",
-	    "amount": 99.99,
+	    "amount": 78.48,
 	    "frequency": {
 		"day": 18
 	    }
 	},
 	{
-	    "description": "Student Loans",
-	    "amount": 300.00,
+	    "description": "Sallie Mae",
+	    "amount": 1297.74,
 	    "frequency": {
 		"day": 18
 	    }
+	},
+	{
+	    "description": "Fake",
+	    "amount": 1137.74,
+	    "frequency": {
+		"day": 17
+	    }
+	},
+	{
+	    "description": "Fake 2",
+	    "amount": 914,
+	    "frequency": {
+		"day": 16
+	    }
+	},
+	{
+	    "description": "Fake 3",
+	    "amount": 685,
+	    "frequency": {
+		"day": 15
+	    }
 	}
+
     ]
 }
